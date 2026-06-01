@@ -1,9 +1,11 @@
+package logic;
+
 import javax.swing.*;
 import java.util.ArrayList;
 
 public class Pawn extends ChessPiece{
 
-    public Pawn(BoardPosition position, int color) {
+    public Pawn(BoardPosition position, ChessColor color) {
         super(position, color);
         super.setImage(findImage(color));
     }
@@ -21,8 +23,8 @@ public class Pawn extends ChessPiece{
 
 
     @Override
-    public ImageIcon findImage(int color) {
-        if (color == 1) {
+    public ImageIcon findImage(ChessColor color) {
+        if (color == ChessColor.BLACK) {
             return new ImageIcon("src/images/blackPawn.png");
         }
         else {
@@ -39,7 +41,7 @@ public class Pawn extends ChessPiece{
         BoardPosition testingPosition = new BoardPosition();
 
         // If the color is white and first space is empty and
-        if (this.color == 0){
+        if (this.color == ChessColor.WHITE){
             if (testingPosition.isNotOutOfBounds() && board.isEmpty(new BoardPosition(currentPosition.column, currentPosition.row + 1))) {
                 possibleMoves.add(new BoardPosition(currentPosition.column, currentPosition.row + 1));
 
@@ -64,7 +66,7 @@ public class Pawn extends ChessPiece{
         }
 
         // If the color is black and first space is empty and
-        if (this.color == 1){
+        if (this.color == ChessColor.BLACK){
             if (testingPosition.isNotOutOfBounds() && board.isEmpty(new BoardPosition(currentPosition.column, currentPosition.row - 1))) {
                 possibleMoves.add(new BoardPosition(currentPosition.column, currentPosition.row - 1));
 

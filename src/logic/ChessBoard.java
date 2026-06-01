@@ -1,3 +1,5 @@
+package logic;
+
 import java.util.ArrayList;
 
 public class ChessBoard {
@@ -7,8 +9,8 @@ public class ChessBoard {
     King whiteKing;
 
     public ChessBoard() {
-        blackKing = new King(new BoardPosition('e', 8), 1);
-        whiteKing = new King(new BoardPosition('e', 1), 0);
+        blackKing = new King(new BoardPosition('e', 8), ChessColor.BLACK);
+        whiteKing = new King(new BoardPosition('e', 1), ChessColor.WHITE);
         this.board = newBoard();
         updateBoard();
     }
@@ -40,16 +42,16 @@ public class ChessBoard {
         updateBoard();
     }
 
-    public int getMoveColor(BoardPosition position) {
+    public ChessColor getMoveColor(BoardPosition position) {
         if (position == null || this.getPieceAt(position) == null)
-            return -1;
+            return ChessColor.NONE;
         return this.getPieceAt(position).color;
     }
 
-    public int getMoveColor(Move move) {
+    public ChessColor getMoveColor(Move move) {
         BoardPosition position = move.getInitPosition();
         if (position == null || this.getPieceAt(position) == null)
-            return -1;
+            return ChessColor.NONE;
         return this.getPieceAt(position).color;
     }
 
@@ -141,7 +143,7 @@ public class ChessBoard {
 
     // Simple function to find which king is being played based on the piece it was given
     public King findKing(ChessPiece piece) {
-        if (piece.color == 0)
+        if (piece.color == ChessColor.WHITE)
             return whiteKing;
         else
             return blackKing;
@@ -171,7 +173,7 @@ public class ChessBoard {
      */
     public boolean clearToCastle(King king, ChessPiece rook) {
         //Castling queen side
-        if (king.color == 0) {
+        if (king.color == ChessColor.WHITE) {
             if (rook.column < king.column) {
                 System.out.println("Castling queen side");
                 for (char i = (char) (king.column - 1); i > rook.column; i--) {
@@ -411,41 +413,41 @@ public class ChessBoard {
      */
     public ChessPiece[][] newBoard() {
         ChessPiece[][] board = new ChessPiece[8][8];
-        board[0] = new ChessPiece[]{new Rook(new BoardPosition('a', 8), 1),
-                new Knight(new BoardPosition('b', 8), 1),
-                new Bishop(new BoardPosition('c', 8), 1),
-                new Queen(new BoardPosition('d', 8), 1),
+        board[0] = new ChessPiece[]{new Rook(new BoardPosition('a', 8), ChessColor.BLACK),
+                new Knight(new BoardPosition('b', 8), ChessColor.BLACK),
+                new Bishop(new BoardPosition('c', 8), ChessColor.BLACK),
+                new Queen(new BoardPosition('d', 8), ChessColor.BLACK),
                 blackKing,
-                new Bishop(new BoardPosition('f', 8), 1),
-                new Knight(new BoardPosition('g', 8), 1),
-                new Rook(new BoardPosition('h', 8), 1)};
+                new Bishop(new BoardPosition('f', 8), ChessColor.BLACK),
+                new Knight(new BoardPosition('g', 8), ChessColor.BLACK),
+                new Rook(new BoardPosition('h', 8), ChessColor.BLACK)};
 
-        board[1] = new ChessPiece[]{new Pawn(new BoardPosition('a', 7), 1),
-                new Pawn(new BoardPosition('b', 7), 1),
-                new Pawn(new BoardPosition('c', 7), 1),
-                new Pawn(new BoardPosition('d', 7), 1),
-                new Pawn(new BoardPosition('e', 7), 1),
-                new Pawn(new BoardPosition('f', 7), 1),
-                new Pawn(new BoardPosition('g', 7), 1),
-                new Pawn(new BoardPosition('h', 7), 1)};
+        board[1] = new ChessPiece[]{new Pawn(new BoardPosition('a', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('b', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('c', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('d', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('e', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('f', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('g', 7), ChessColor.BLACK),
+                new Pawn(new BoardPosition('h', 7), ChessColor.BLACK)};
 
-        board[6] = new ChessPiece[]{new Pawn(new BoardPosition('a', 2), 0),
-                new Pawn(new BoardPosition('b', 2), 0),
-                new Pawn(new BoardPosition('c', 2), 0),
-                new Pawn(new BoardPosition('d', 2), 0),
-                new Pawn(new BoardPosition('e', 2), 0),
-                new Pawn(new BoardPosition('f', 2), 0),
-                new Pawn(new BoardPosition('g', 2), 0),
-                new Pawn(new BoardPosition('h', 2), 0)};
+        board[6] = new ChessPiece[]{new Pawn(new BoardPosition('a', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('b', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('c', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('d', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('e', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('f', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('g', 2), ChessColor.WHITE),
+                new Pawn(new BoardPosition('h', 2), ChessColor.WHITE)};
 
-        board[7] = new ChessPiece[]{new Rook(new BoardPosition('a', 1), 0),
-                new Knight(new BoardPosition('b', 1), 0),
-                new Bishop(new BoardPosition('c', 1), 0),
-                new Queen(new BoardPosition('d', 1), 0),
+        board[7] = new ChessPiece[]{new Rook(new BoardPosition('a', 1), ChessColor.WHITE),
+                new Knight(new BoardPosition('b', 1), ChessColor.WHITE),
+                new Bishop(new BoardPosition('c', 1), ChessColor.WHITE),
+                new Queen(new BoardPosition('d', 1), ChessColor.WHITE),
                 whiteKing,
-                new Bishop(new BoardPosition('f', 1), 0),
-                new Knight(new BoardPosition('g', 1), 0),
-                new Rook(new BoardPosition('h', 1), 0)};
+                new Bishop(new BoardPosition('f', 1), ChessColor.WHITE),
+                new Knight(new BoardPosition('g', 1), ChessColor.WHITE),
+                new Rook(new BoardPosition('h', 1), ChessColor.WHITE)};
 
         return board;
     }

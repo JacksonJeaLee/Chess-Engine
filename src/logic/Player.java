@@ -1,8 +1,10 @@
+package logic;
+
 public class Player {
     private String name;
-    private int color;
+    private ChessColor color;
 
-    public Player(String name, int color) {
+    public Player(String name, ChessColor color) {
         this.name = name;
         this.color = color;
     }
@@ -11,7 +13,7 @@ public class Player {
         return name;
     }
 
-    public int getColor() {
+    public ChessColor getColor() {
         return color;
     }
 }

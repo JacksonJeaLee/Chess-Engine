@@ -1,9 +1,12 @@
+package logic;
+
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Knight extends ChessPiece{
 
-    public Knight(BoardPosition position, int color) {
+    public Knight(BoardPosition position, ChessColor color) {
         super(position, color);
         super.setImage(findImage(color));
     }
@@ -20,8 +23,8 @@ public class Knight extends ChessPiece{
     }
 
     @Override
-    public ImageIcon findImage(int color) {
-        if (color == 1) {
+    public ImageIcon findImage(ChessColor color) {
+        if (color == ChessColor.BLACK) {
             return new ImageIcon("src/images/blackKnight.png");
         }
         else {

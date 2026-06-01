@@ -1,22 +1,24 @@
+package logic;
+
 import javax.swing.*;
 import java.util.ArrayList;
 
-public abstract class ChessPiece extends BoardPosition{
+public abstract class ChessPiece extends BoardPosition {
     // 0: My Side
     // 1: Opponent Side
-    int color;
+    ChessColor color;
     ArrayList<BoardPosition> possibleMoves;
     ImageIcon pieceIcon;
     boolean hasMoved;
 
     public ChessPiece() {
         super();
-        this.color = 0;
+        this.color = ChessColor.WHITE;
         pieceIcon = null;
         hasMoved = false;
     }
 
-    public ChessPiece(BoardPosition position, int color) {
+    public ChessPiece(BoardPosition position, ChessColor color) {
         super(position);
         this.color = color;
         pieceIcon = null;
@@ -50,7 +52,7 @@ public abstract class ChessPiece extends BoardPosition{
         return pieceIcon;
     }
 
-    public abstract ImageIcon findImage(int color);
+    public abstract ImageIcon findImage(ChessColor color);
 
     public abstract ArrayList<BoardPosition> findPossibleMoves(ChessBoard board);
 

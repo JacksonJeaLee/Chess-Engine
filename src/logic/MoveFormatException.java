@@ -1,4 +1,4 @@
-// TODO DELETE
+package logic;// TODO DELETE
 
 public class MoveFormatException extends Exception {
 

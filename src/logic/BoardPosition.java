@@ -1,4 +1,9 @@
-public class BoardPosition {
+package logic;
+
+import java.io.Serializable;
+
+public class BoardPosition
+        implements Serializable {
     char column;
     int row;
 

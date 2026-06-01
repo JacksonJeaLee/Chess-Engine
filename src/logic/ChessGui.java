@@ -1,3 +1,5 @@
+package logic;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -29,7 +31,7 @@ public class ChessGui extends JPanel {
         Font subHeadingFont = new Font("Arial", Font.BOLD, 18);
 
         JLabel mateText = new JLabel();
-        if (chessGame.getWinner().getColor() == 0) {
+        if (chessGame.getWinner().getColor() == ChessColor.WHITE) {
             mateText.setText("White Wins!");
         }
         else {

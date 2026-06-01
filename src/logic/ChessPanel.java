@@ -1,3 +1,5 @@
+package logic;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -8,11 +10,9 @@ public class ChessPanel extends JPanel {
 
     private ChessGame chessGame;
 
-    private static final int SCREEN_WIDTH = 600;
-    private static final int SCREEN_HEIGHT = 600;
+    public static final int SCREEN_WIDTH = 600;
+    public static final int SCREEN_HEIGHT = 600;
     static final int SQUARE_LENGTH = 75;
-
-    private boolean running;
 
     private boolean flipped;
 
@@ -20,6 +20,7 @@ public class ChessPanel extends JPanel {
 
     private BoardPosition highlightPosition = null;
 
+    private ChessColor chessColor;
 //    private ChessBoard chessBoard;
 
     public ChessPanel(ChessGame chessGame) {
@@ -28,11 +29,12 @@ public class ChessPanel extends JPanel {
 //        this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.flipped = chessGame.flipped();
-        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        this.chessColor = chessGame.getChessColor();
 
-        running = true;
-
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
+
+
 
     public BoardPosition coordsToPosition(int x, int y) {
 //        boolean flipped = chessGame.flipped();
@@ -112,15 +114,23 @@ public class ChessPanel extends JPanel {
 //        System.out.println(move.toString());
         // TODO
 
-        chessGame.turn(move);
-        flipped = chessGame.flipped();
+        if (chessColor == ChessColor.NONE) { // Pass and play
+            chessGame.turn(move);
+            flipped = chessGame.flipped();
 
-        if (!winScreenVisible && checkForMate()) {
-            winScreenVisible = true;
+            if (!winScreenVisible && checkForMate()) {
+                winScreenVisible = true;
 
-            SwingUtilities.invokeLater(() ->
-                    winScreen(chessGame.getWinner())
-            );
+                SwingUtilities.invokeLater(() ->
+                        winScreen(chessGame.getWinner())
+                );
+            }
+        }
+        else {
+            if (chessGame.getChessBoard().getMoveColor(move) == chessColor) {
+                boolean validMove = chessGame.turn(move);
+
+            }
         }
         repaint();
     }
@@ -153,6 +163,7 @@ public class ChessPanel extends JPanel {
 //    }
 
     public void listenForMove() {
+        System.out.println("Listening for Move");
         this.addMouseListener(new MouseAdapter() {
             private boolean pressed = false;
 
@@ -165,7 +176,7 @@ public class ChessPanel extends JPanel {
                 if (!pressed) {
                     pressed = true;
                     pressedOn = coordsToPosition(e.getX(), e.getY());
-//                    System.out.println("Pressed on: " + pressedOn);
+                    System.out.println("Pressed on: " + pressedOn);
                     highlightPosition = pressedOn;
                     repaint();
 
@@ -180,7 +191,7 @@ public class ChessPanel extends JPanel {
 //                    System.out.println("Released on: " + releasedOn);
                     // If the piece you released on is not the same as the one you pressed on
                     if (!pressedOn.equals(releasedOn)) {
-//                        System.out.println(pressedOn + " to " + releasedOn);
+                        System.out.println(pressedOn + " to " + releasedOn);
                         makeMove(new Move(pressedOn, releasedOn));
                         pressedOn = null;
                         firstPosition = null;
@@ -320,7 +331,7 @@ public class ChessPanel extends JPanel {
     public void winScreen(Player winner) {
         String color;
 //        System.out.println("Winner :" + king.toString() + " " + king.color);
-        if (winner.getColor() == 0)
+        if (winner.getColor() == ChessColor.WHITE)
             color = "White";
         else
             color = "Black";

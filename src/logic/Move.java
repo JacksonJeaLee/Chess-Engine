@@ -1,4 +1,9 @@
-public class Move {
+package logic;
+
+import java.io.Serializable;
+
+public class Move
+        implements Serializable {
 
     private BoardPosition initPosition;
     private BoardPosition movePosition;

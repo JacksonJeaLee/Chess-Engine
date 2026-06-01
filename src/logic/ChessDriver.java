@@ -1,11 +1,15 @@
-import javax.swing.*;
-import java.awt.*;
+package logic;
+
+import swing.SelectionPanel;
 
 public class ChessDriver {
     public static void main(String[] args) {
         try {
-            ChessGame game = new ChessGame();
-            game.startGame();
+//            ChessGame game = new ChessGame();
+//            game.startGame();
+//            SelectionPanel matchPanel = new SelectionPanel();
+//            ChessFrame chessFrame = new ChessFrame(matchPanel);
+
 //
 //        ChessGui gui = new ChessGui(game);
 //        gui.checkMate();
@@ -27,10 +31,9 @@ public class ChessDriver {
 ////        layeredPane.setVisible(true);
 //        ChessFrame frame = new ChessFrame(gui);
 
-        } catch (MoveFormatException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
 
