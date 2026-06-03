@@ -4,16 +4,15 @@ import server.Client;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLOutput;
-import java.util.Timer;
 
 
 public class ChessGame {
 
-    private enum Mode {PASS_AND_PLAY, SERVER}
+    private enum Mode {PASS_AND_PLAY, CLIENT, SERVER}
     private ChessBoard board;
 //    private Timer timer;
     private Client client;
+
     private Player player1;
     private Player player2;
     private Player currentTurnsPlayer;
@@ -23,6 +22,8 @@ public class ChessGame {
 
     private Mode mode;
     private ChessColor chessColor;
+
+    private boolean running;
 
     public ChessGame() {
         mode = Mode.PASS_AND_PLAY;
@@ -34,10 +35,25 @@ public class ChessGame {
         player2 = new Player("Player 2", ChessColor.BLACK);
         currentTurnsPlayer = player1;
         initLayeredPane();
+
+        running = true;
     }
 
-    public ChessGame(ChessColor chessColor, Client client) { // For server play
+    public ChessGame(ChessColor chessColor) { // For Server validation
         mode = Mode.SERVER;
+        this.chessColor = chessColor;
+        board = new ChessBoard();
+        board.newBoard();
+
+        player1 = new Player("Player 1", ChessColor.WHITE);
+        player2 = new Player("Player 2", ChessColor.BLACK);
+        currentTurnsPlayer = player1;
+
+        running = true;
+    }
+
+    public ChessGame(ChessColor chessColor, Client client) { // For client play
+        mode = Mode.CLIENT;
         board = new ChessBoard();
         board.newBoard();
 
@@ -47,6 +63,8 @@ public class ChessGame {
         player2 = new Player("Player 2", ChessColor.BLACK);
         currentTurnsPlayer = player1;
         initLayeredPane();
+
+        running = true;
     }
 
     public void startGame() throws MoveFormatException {
@@ -72,6 +90,7 @@ public class ChessGame {
         chessFrame.add(layeredPane);
 
 //        panel.removeAll();
+        running = true;
 
     }
 
@@ -112,7 +131,8 @@ public class ChessGame {
         }
         // The board is always flipped for black and never for white.
         else {
-            return mode != Mode.SERVER;
+//            return mode != Mode.CLIENT;
+            return chessColor != ChessColor.WHITE;
         }
     }
 
@@ -125,13 +145,19 @@ public class ChessGame {
         }
     }
 
+    /**
+     * used with the panel
+     * @param move
+     * @return
+     */
     public boolean turn(Move move) {
         if (board.getMoveColor(move) == currentTurnsPlayer.getColor()) {
             if (board.movePiece(move)) {
                 currentTurnsPlayer = nextPlayer(currentTurnsPlayer);
 
+
                 // Since we are playing with a server, needs to send the move through the client
-                if (mode == Mode.SERVER) {
+                if (mode == Mode.CLIENT) {
                     client.sendMove(move);
                 }
                 return true;
@@ -148,6 +174,29 @@ public class ChessGame {
         }
     }
 
+    public boolean serverTurn(Move move) {
+        if (board.getMoveColor(move) == currentTurnsPlayer.getColor()) {
+            if (board.movePiece(move)) {
+                currentTurnsPlayer = nextPlayer(currentTurnsPlayer);
+
+                return true;
+            }
+            return false;
+
+        }
+        else {
+            if (board.getMoveColor(move) != currentTurnsPlayer.getColor()) {
+                System.out.println("Not ur turn buddy");
+            }
+            System.out.println("Invalid Move");
+            return false;
+        }
+    }
+
+    public Move getOpponentMove() {
+        return client.getMove();
+    }
+
     public Player nextPlayer(Player player) {
         // Returns the other player when one player is inputted.
         if (player.equals(player1)) {
@@ -160,6 +209,10 @@ public class ChessGame {
 
     public ChessColor getChessColor() {
         return chessColor;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
 }

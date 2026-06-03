@@ -18,16 +18,21 @@ public class PanelController {
 
         Client client = new Client(new Socket("localhost", 1234));
         client.start();
+
         SignupPanel signupPanel = new SignupPanel(cardLayout, container, client);
         LoginPanel loginPanel = new LoginPanel(cardLayout, container, client);
         SelectionPanel selectionPanel = new SelectionPanel(cardLayout, container, client);
         BackingPanel backingPanel = new BackingPanel(cardLayout, container);
+        BackingPanel matchPanel = new BackingPanel(cardLayout, container, client);
+
         container.add(signupPanel, "SIGNUP");
         container.add(loginPanel, "LOGIN");
         container.add(selectionPanel, "SELECTION");
         container.add(backingPanel, "PLAY");
+        container.add(matchPanel, "MATCH");
+
         cardLayout.show(container, "SELECTION");
-        ChessFrame chessFrame = new ChessFrame(container);
+        new ChessFrame(container);
 
         container.setVisible(true);
     }

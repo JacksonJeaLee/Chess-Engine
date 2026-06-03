@@ -29,4 +29,3 @@ bin/
 .DS_Store
 
 ### DATABASE ###
-/src/server/Database.java

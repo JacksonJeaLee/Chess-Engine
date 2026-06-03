@@ -23,6 +23,7 @@ public class SelectionPanel extends Panel {
     private JButton passSelectionButton;
     private JButton signupSelectionButton;
     private JButton loginSelectionButton;
+    private JButton findMatchButton;
 
     private JLabel usernameLabel;
 
@@ -39,16 +40,19 @@ public class SelectionPanel extends Panel {
         this.passSelectionButton = createButton("Pass and Play", 100, 200, 400, 75);
         this.signupSelectionButton = createButton("Sign Up", 100, 300, 400, 75);
         this.loginSelectionButton = createButton("Log In", 100, 400, 400, 75);
+        this.findMatchButton = createButton("Find Match", 100, 500, 400, 75);
 
         this.usernameLabel = createUserLabel(client.getUsername());
 
         passSelectionButton.addActionListener(e -> cardLayout.show(container, "PLAY"));
         signupSelectionButton.addActionListener(e -> cardLayout.show(container, "SIGNUP"));
         loginSelectionButton.addActionListener(e -> cardLayout.show(container, "LOGIN"));
+        findMatchButton.addActionListener(e -> cardLayout.show(container, "MATCH"));
 
         add(passSelectionButton);
         add(signupSelectionButton);
         add(loginSelectionButton);
+        add(findMatchButton);
 
 //        this.setLayout(new BorderLayout());
 

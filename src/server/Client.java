@@ -1,5 +1,6 @@
 package server;
 
+import logic.ChessColor;
 import logic.ChessGame;
 import logic.Move;
 import server.data.User;
@@ -54,6 +55,25 @@ public class Client {
 //        });
     }
 
+    public Move getMove() {
+        if (!playingMatch) {
+            System.out.println("Need to play a match before receiving a move.");
+            return null;
+        }
+
+        Request request = new Request("get_move", null);
+
+        Response response = sendRequest(request);
+
+        if (response.getStatusCode() != 200) {
+            printError(response);
+            return null;
+        }
+
+        Move move = (Move) response.getData().get("move");
+        return move;
+    }
+
     public void sendMove(Move move) {
         if (!playingMatch) {
             System.out.println("Need to play a match before making a move.");
@@ -73,10 +93,10 @@ public class Client {
         System.out.println("Success!");
     }
 
-    public void findMatch() {
+    public UserInfo findMatch() {
         if (!isLoggedIn) {
             System.out.println("Please login before looking for a match.");
-            return;
+            return null;
         }
 
         Request request = new Request("find_match", null);
@@ -86,13 +106,14 @@ public class Client {
         HashMap<String, Object> responseData = response.getData();
         if (response.getStatusCode() != 200) {
             printError(response);
-            return;
+            return null;
         }
-        UserInfo userInfo = (UserInfo) responseData.get("user_info");
+        UserInfo opponentInfo = (UserInfo) responseData.get("user_info");
 
-        System.out.println(userInfo);
+        System.out.println(opponentInfo);
         playingMatch = true;
 
+        return opponentInfo;
     }
 
     public int signUp(String username, String password) {
@@ -146,7 +167,7 @@ public class Client {
             this.userId = (Integer) responseData.get("user_id");
             this.isLoggedIn = true;
             System.out.println("Welcome USER:" + userId + " - " + username);
-            return new UserInfo(username, userId);
+            return new UserInfo(ChessColor.NONE, username, userId);
         }
     }
 
@@ -234,6 +255,7 @@ public class Client {
 
             client.findMatch();
             System.out.println();
+
 //            client.logout();
 //            client.login("Arkofawesome", "2231");
 //            client.logout();

@@ -25,7 +25,7 @@ public class ChessPanel extends JPanel {
 
     public ChessPanel(ChessGame chessGame) {
         this.chessGame = chessGame;
-        this.setLayout(new BorderLayout());
+        this.setLayout(null);
 //        this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.flipped = chessGame.flipped();
@@ -62,7 +62,7 @@ public class ChessPanel extends JPanel {
         }
     }
 
-    public void drawPieces() {
+    public void drawPieces(Graphics g) {
 //        boolean flipped = chessGame.flipped();
         ChessPiece[][] board = chessGame.getBoard();
 
@@ -72,15 +72,7 @@ public class ChessPanel extends JPanel {
                 for (int c = 0; c < SCREEN_WIDTH / SQUARE_LENGTH; c++) {
                     if (board[r][c] != null) {
     //                    System.out.println(board[r][c].getName());
-                        Image image = board[r][c].pieceIcon.getImage();
-                        ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(75, 75, java.awt.Image.SCALE_SMOOTH)); // Resize
-                        JLabel testImg = new JLabel(imageIcon);
-                        testImg.setVisible(true);
-                        testImg.setBounds(c * SQUARE_LENGTH,r * SQUARE_LENGTH, imageIcon.getIconWidth(), imageIcon.getIconHeight());
-    //                    if (highlightPosition != null && board[r][c].equals(highlightPosition)) {
-    //                        testImg.setVisible(false);
-    //                    }
-                        this.add(testImg);
+                        drawPiece(g, board[r][c], c * SQUARE_LENGTH, r * SQUARE_LENGTH);
                     }
                 }
             }
@@ -91,15 +83,7 @@ public class ChessPanel extends JPanel {
                 for (int c = 7; c >= 0; c--) {
                     if (board[r][c] != null) {
                         //                    System.out.println(board[r][c].getName());
-                        Image image = board[r][c].pieceIcon.getImage();
-                        ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(75, 75, java.awt.Image.SCALE_SMOOTH)); // Resize
-                        JLabel testImg = new JLabel(imageIcon);
-                        testImg.setVisible(true);
-                        testImg.setBounds(Math.abs(c - 7) * SQUARE_LENGTH ,Math.abs(r - 7) * SQUARE_LENGTH, imageIcon.getIconWidth(), imageIcon.getIconHeight());
-                        //                    if (highlightPosition != null && board[r][c].equals(highlightPosition)) {
-                        //                        testImg.setVisible(false);
-                        //                    }
-                        this.add(testImg);
+                        drawPiece(g, board[r][c], Math.abs(c - 7) * SQUARE_LENGTH, Math.abs(r - 7) * SQUARE_LENGTH);
                     }
                 }
             }
@@ -108,6 +92,11 @@ public class ChessPanel extends JPanel {
 
 //        holdPiece();
 
+    }
+
+    private void drawPiece(Graphics g, ChessPiece piece, int x, int y) {
+        Image image = piece.pieceIcon.getImage();
+        g.drawImage(image, x, y, SQUARE_LENGTH, SQUARE_LENGTH, this);
     }
 
     public void makeMove(Move move) {
@@ -128,11 +117,32 @@ public class ChessPanel extends JPanel {
         }
         else {
             if (chessGame.getChessBoard().getMoveColor(move) == chessColor) {
-                boolean validMove = chessGame.turn(move);
-
+                if (chessGame.turn(move)) { // Sends move to server
+                    repaint();
+                    waitForOpponentMove();
+                }
             }
         }
         repaint();
+    }
+
+    public void waitForOpponentMove() {
+        new Thread(() -> {
+            Move opponentMove = chessGame.getOpponentMove();
+            if (opponentMove == null) {
+                return;
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                chessGame.serverTurn(opponentMove);
+                repaint();
+
+                if (!winScreenVisible && checkForMate()) {
+                    winScreenVisible = true;
+                    winScreen(chessGame.getWinner());
+                }
+            });
+        }).start();
     }
 
 //    public void createHeldPiece(Point point) {
@@ -369,10 +379,9 @@ public class ChessPanel extends JPanel {
 
     public void draw(Graphics g) {
 
-        removeAll();
         drawBoard(g);
 //            chessGame.printBoard();
-        drawPieces();
+        drawPieces(g);
         drawPossibleMoves(g);
 
 

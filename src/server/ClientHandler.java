@@ -1,5 +1,6 @@
 package server;
 
+import logic.ChessColor;
 import logic.ChessGame;
 import logic.Move;
 import server.data.User;
@@ -20,6 +21,7 @@ public class ClientHandler implements Runnable {
     private UserInfo userInfo;
     private Map<String, ClientHandler> players; // For match finder.
     private Queue<UserInfo> lobby;
+    private Database database;
 
     private ClientHandler opponent;
 
@@ -31,10 +33,11 @@ public class ClientHandler implements Runnable {
 
     private BlockingQueue<Object> internalQueue; // Made for moves and handshake agreements between ClientHandlers.
 
-    public ClientHandler(Socket socket, Map<String, ClientHandler> players, Queue<UserInfo> lobby) {
+    public ClientHandler(Socket socket, Map<String, ClientHandler> players, Queue<UserInfo> lobby, Database database) {
         this.players = players;
         this.socket = socket;
         this.lobby = lobby;
+        this.database = database;
 
         try {
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -82,6 +85,10 @@ public class ClientHandler implements Runnable {
                     response = makeMove(request);
                     break;
 
+                case "get_move":
+                    response = getMove();
+                    break;
+
                 default:
                     response = invalidRequest();
                     break;
@@ -92,13 +99,30 @@ public class ClientHandler implements Runnable {
         sendResponse(response);
     }
 
-    private Response makeMove(Request request) {
+    private Response getMove() throws InterruptedException {
+        HashMap<String, Object> responseData = new HashMap<>();
+        if (chessGame == null || !chessGame.isRunning()) {
+            responseData.put("error", "Chess Game is not running\nChess Game null: " + (chessGame == null));
+            return new Response(400, responseData);
+        }
+
+        Move opponentMove = (Move) internalQueue.take();
+        // Validate Move
+//        if (!validMove(opponentMove)) return
+
+        responseData.put("move", opponentMove);
+        return new Response(200, responseData);
+    }
+
+    private Response makeMove(Request request) throws InterruptedException {
         HashMap<String, Object> requestData = request.getData();
         Move move = (Move) requestData.get("move");
 
         // TODO
 //        if (!validMove(move)) return
+        opponent.internalQueue.put(move);
 
+        return new Response(200, null);
     }
 
     private Response findMatch() throws InterruptedException {
@@ -108,12 +132,20 @@ public class ClientHandler implements Runnable {
             lobby.add(userInfo);
             // Wait for match
             opponentInfo = (UserInfo) internalQueue.take();
+            // Need to fix with copy later, but used for telling the client both his and the opponents color
+            opponentInfo.setChessColor(ChessColor.BLACK);
+            this.opponent = players.get(opponentInfo.getUsername());
+            // Start the Chess game as white
+            chessGame = new ChessGame(ChessColor.WHITE);
         }
         else {
             opponentInfo = lobby.remove(); // Remove and obtain the opponents username
-            ClientHandler opponent = players.get(opponentInfo.getUsername());
+            // Need to fix with copy later, but used for telling the client both his and the opponents color
+            opponentInfo.setChessColor(ChessColor.WHITE);
+            this.opponent = players.get(opponentInfo.getUsername());
             // Use the username to get the ClientHandler and send handshake through their blocking queue.
             opponent.internalQueue.put(userInfo);
+            chessGame = new ChessGame(ChessColor.BLACK);
         }
 
         HashMap<String, Object> responseData = new HashMap<>();
@@ -129,7 +161,7 @@ public class ClientHandler implements Runnable {
         String username = (String) requestData.get("username");
         String password = (String) requestData.get("password");
 
-        UserInfo userInfo = Database.addUser(username, password);
+        UserInfo userInfo = database.addUser(username, password);
         boolean successful = userInfo != null; // Unsuccessful due to already used username
 
         Response response;
@@ -161,7 +193,7 @@ public class ClientHandler implements Runnable {
         String username = (String) requestData.get("username");
         String password = (String) requestData.get("password");
 
-        UserInfo userInfo = Database.login(username, password);
+        UserInfo userInfo = database.login(username, password);
         boolean successful = userInfo != null; // Returns -1 if failure
 
         Response response;
@@ -183,7 +215,7 @@ public class ClientHandler implements Runnable {
     }
 
     private Response getData() throws SQLException {
-        List<User> data = Database.getData();
+        List<User> data = database.getData();
         HashMap<String, Object> responseData = new HashMap<>();
         responseData.put("data", data);
         return new Response(200, responseData);
